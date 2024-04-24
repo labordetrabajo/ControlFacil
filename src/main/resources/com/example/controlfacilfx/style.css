@@ -1,0 +1,32 @@
+/* styles.css */
+.menu-pane {
+    -fx-background-color: #191819; /* Color de fondo de la aplicación */
+    -fx-padding: 20;
+    -fx-spacing: 10;
+}
+
+.styled-button {
+    -fx-background-color: #333333; /* Color de fondo sin pasar el cursor */
+    -fx-text-fill: #faf9f8; /* Color de texto sin pasar el cursor */
+    -fx-font-size: 24;
+    -fx-padding: 10 20;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+
+
+}
+
+.styled-button:hover {
+    -fx-background-color: #445545; /* Color de fondo al pasar el cursor */
+    -fx-text-fill: #faf9f8; /* Color de texto al pasar el cursor */
+}
+
+
+
+
+.welcome-text {
+    -fx-fill: #faf9f8; /* Color de texto para el mensaje de bienvenida */
+    -fx-font-size: 24; /* Tamaño de fuente más grande para el mensaje de bienvenida */
+
+
+}
