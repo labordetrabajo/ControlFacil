@@ -10,16 +10,15 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,7 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public class Venta extends Application {
+public class Pedidos extends Application {
     private ArrayList<Producto> listaProductos;
     private ArrayList<Producto> productosAgregados;
     private Connection conexion;
@@ -62,9 +61,12 @@ public class Venta extends Application {
         // Ajustamos el tamaño de la fuente de los elementos del GridPane
         gridPane.setStyle("-fx-font-size: 18;");
 
-        Scene scene = new Scene(gridPane, 900, 700); // Ajuste del tamaño de la escena
+        Scene scene = new Scene(gridPane, 1200, 700); // Ajuste del tamaño de la escena
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        //******************************************** FIN CONFIGURACIÓN SCENE  **************************************//
+
         //**********************************************  BÚSQUEDA PRODUCTO *****************************************//
         Label nombreLabel = new Label("Producto:");
         gridPane.add(nombreLabel, 0, 0);
@@ -92,18 +94,21 @@ public class Venta extends Application {
                 buscarProducto(nombreTextField.getText());
             }
         });
-        //****************************************** BÚSQUEDA CLIENTE ***************************************************//
-        // Crear el TextField para buscar clientes
+
+        //******************************************* FIN BÚSQUEDA PRODUCTO *****************************************//
+
+        //****************************************** BUSQUEDA CLIENTE ***************************************************//
+// Crear el TextField para buscar clientes
         TextField buscarClienteTextField = new TextField();
         buscarClienteTextField.setPromptText("Buscar Cliente"); // Texto de sugerencia
         buscarClienteTextField.setMaxWidth(200); // Establecer un ancho específico
         buscarClienteTextField.setAlignment(Pos.CENTER_LEFT); // Alinear el texto a la izquierda
 
-     // Texto "Cliente" al lado del TextField
+// Texto "Cliente" al lado del TextField
         Label clienteLabel = new Label("Cliente");
         clienteLabel.setLabelFor(buscarClienteTextField);
 
-     // Botón de búsqueda
+// Botón de búsqueda
         Button buscarClienteButton = new Button("");
         buscarClienteButton.setOnAction(event -> {
             String clienteIngresado = buscarClienteTextField.getText();
@@ -112,15 +117,15 @@ public class Venta extends Application {
             }
         });
 
-        // Cargar la misma imagen que tiene el botón buscar
+// Cargar la misma imagen que tiene el botón buscar
         ImageView buscarClienteIcon = new ImageView(new Image(getClass().getResourceAsStream("/buscar.png")));
         buscarClienteIcon.setFitWidth(35); // ajustar el ancho del icono según sea necesario
         buscarClienteIcon.setFitHeight(35); // ajustar el alto del icono según sea necesario
 
-     // Asignar el icono al botón buscarClienteButton
+// Asignar el icono al botón buscarClienteButton
         buscarClienteButton.setGraphic(buscarClienteIcon);
 
-     // Realizar la búsqueda cuando se presiona "Enter" en el TextField
+// Realizar la búsqueda cuando se presiona "Enter" en el TextField
         buscarClienteTextField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 String clienteIngresado = buscarClienteTextField.getText();
@@ -130,25 +135,78 @@ public class Venta extends Application {
             }
         });
 
-     // Dentro del método start()
+// Dentro del método start()
         HBox buscarBox = new HBox(10);
         buscarBox.getChildren().addAll(clienteLabel, buscarClienteTextField, buscarClienteButton);
         buscarBox.setAlignment(Pos.CENTER_LEFT);
 
-      // Agregar el contenedor HBox al GridPane
+// Agregar el contenedor HBox al GridPane
         gridPane.add(buscarBox, 3, 0);
 
-     // Inicializar etiquetas
+// Inicializar etiquetas
         idClienteLabel = new Label();
         direccionClienteLabel = new Label();
         telefonoClienteLabel = new Label();
         documentoClienteLabel = new Label();
 
-     // Agregar etiquetas al GridPane
+        // Agregar etiquetas al GridPane
         gridPane.add(idClienteLabel, 3, 1);
         gridPane.add(direccionClienteLabel, 3, 2);
         gridPane.add(telefonoClienteLabel, 3, 3);
         gridPane.add(documentoClienteLabel, 3, 4);
+
+
+      // Crear label y text field para la fecha de entrega
+        Label fechaEntregaLabel = new Label("F.Entrega");
+        TextField fechaEntregaTextField = new TextField();
+        fechaEntregaTextField.setPromptText("DD/MM/AÑO");
+        fechaEntregaTextField.setMaxWidth(140); // Establecer un ancho específico
+        fechaEntregaTextField.setAlignment(Pos.CENTER_LEFT); // Alinear el texto a la izquierda
+
+       // Crear label y choice box para el estado
+        Label estadoLabel = new Label("Estado:");
+        ChoiceBox<String> estadoChoiceBox = new ChoiceBox<>();
+      // estadoChoiceBox.getItems().addAll("Activo", "Inactivo"); // Añadir opciones al ChoiceBox
+
+      // Crear label y text field para la hora de entrega
+        Label horarioLabel = new Label("H.Entrega:");
+        TextField horarioTextField = new TextField();
+        horarioTextField.setPromptText("HH:MM");
+        horarioTextField.setMaxWidth(90); // Establecer un ancho específico
+
+        Label direccionLabel = new Label("Dirección:");
+        TextField direccionTextField = new TextField();
+        direccionTextField.setPromptText("Pola 1254");
+        direccionTextField.setMaxWidth(140); // Establecer un ancho específico
+
+        Label hiperLabel = new Label("Hiper.Entrega:");
+        TextField hiperTextField = new TextField();
+        hiperTextField.setPromptText("www.hola.com");
+        hiperTextField.setMaxWidth(140); // Establecer un ancho específico
+
+        Label vehiculoLabel = new Label("Vehículo:");
+        TextField vehiculoTextField = new TextField();
+        vehiculoTextField.setPromptText("Corsa npu456");
+        vehiculoTextField.setMaxWidth(140); // Establecer un ancho específico
+
+// Crear un VBox para agrupar los elementos con espaciado vertical reducido
+        VBox vbox = new VBox(25); // El parámetro es el espaciado vertical entre los elementos
+        vbox.getChildren().addAll(
+                new HBox(new Label("Fecha de \nEntrega:    "), fechaEntregaTextField),
+                new HBox(new Label("Estado:      "), estadoChoiceBox),
+                new HBox(new Label("Horario \nEntrega:     "), horarioTextField),
+                new HBox(new Label("Dirección \nEntrega:     "), direccionTextField),
+                new HBox(new Label("Link \nproducto:   "), hiperTextField),
+                new HBox(new Label("Vehículo:    "), vehiculoTextField)
+        );
+
+// Agregar el VBox al GridPane en una posición más baja
+        gridPane.add(vbox, 4, 1, 2, 3); // Cambiar la fila de 0 a 3 (o el número adecuado)
+        // para moverlo hacia abajo
+
+
+
+
 
 
         //****************************************** BUSQUEDA CLIENTE ***************************************************//
@@ -408,13 +466,13 @@ public class Venta extends Application {
         finButton.setGraphic(finIcon);
 
         //************************************************* BOTÓN FIN ******************************************//
-    } // esta es mi método principal aca sucede absolutamante todo//
+    } // esta es mi clase principal aca sucede absolutamante todo//
 
     public static void main(String[] args) {
         launch(args);
     }
 
-    public Venta(Connection conexion) {
+    public Pedidos(Connection conexion) {
         this.listaProductos = new ArrayList<>();
         this.productosAgregados = new ArrayList<>();
         this.productosEliminados = new ArrayList<>();

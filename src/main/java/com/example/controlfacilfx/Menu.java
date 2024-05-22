@@ -92,6 +92,7 @@ public class Menu extends Application {
     }
 
     //*************************************** MENU PRINCIPAL *********************************************************//
+
     // Método para mostrar el menú principal//
     public GridPane menuPrincipal(Stage stage) {
         GridPane menuPane = new GridPane();
@@ -134,6 +135,18 @@ public class Menu extends Application {
         productosIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
         adminProductosButton.setGraphic(productosIcon); // agrega el icono al botón
 
+        Button pedidoButton = new Button(" Pedidos ");
+        pedidoButton.setStyle("-fx-font-size: 20px;");
+         // Crear ImageView para el icono del botón de pedido
+        ImageView pedidoIcon = new ImageView(new Image(getClass().getResourceAsStream("/pedido.png")));
+        pedidoIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        pedidoIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        pedidoButton.setGraphic(pedidoIcon); // agrega el icono al botón
+        pedidoButton.setOnAction(e -> {
+            Pedidos pedidos = new Pedidos(conexion);
+            pedidos.start(new Stage()); // Inicia la ventana de venta
+        });
+
 
         Button ventaButton = new Button("  Ventas  ");
         ventaButton.setStyle("-fx-font-size: 20px;");
@@ -148,7 +161,7 @@ public class Menu extends Application {
         ventasIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
         ventaButton.setGraphic(ventasIcon); // agrega el icono al botón
 
-        Button listaMetodosPagoButton = new Button("Métodos de Pago");
+        Button listaMetodosPagoButton = new Button("M.de Pago");
         listaMetodosPagoButton.setStyle("-fx-font-size: 20px;");
         listaMetodosPagoButton.setOnAction(e -> stage.setScene(menuMetodosPago(stage)));
 
@@ -203,6 +216,7 @@ public class Menu extends Application {
         menuPane.add(menuClientesButton, 0, 3);
         menuPane.add( menuRegistroventasButton, 1, 3);
         menuPane.add( contactoButton, 2, 3);
+        menuPane.add(pedidoButton, 2, 4);
 
         return menuPane;
     }

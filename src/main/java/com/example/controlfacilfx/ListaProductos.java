@@ -6,6 +6,9 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
@@ -19,6 +22,9 @@ import java.text.DecimalFormat;
 import java.util.Optional;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 
 public class ListaProductos extends Stage {
 
@@ -52,45 +58,297 @@ public class ListaProductos extends Stage {
     // Método para inicializar la interfaz de usuario
     private void initUI() {
         setTitle("Lista de Productos");
-        setWidth(900);
+        setWidth(1050);
         setHeight(700);
-        // Crear un contenedor VBox para organizar los elementos
-        VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        vbox.setPadding(new Insets(10));
+
+        // Crear un GridPane para organizar los elementos
+        GridPane gridPane = new GridPane();
+        gridPane.setVgap(10);
+        gridPane.setHgap(10);
+        gridPane.setPadding(new Insets(10));
+
         // Crear etiquetas y campos de texto para filtrar por nombre, precio y cantidad
-        Label filtroLabel = new Label("Filtrar por Nombre:");
+        Label filtroLabel = new Label("Nombre:");
         filtroLabel.setStyle("-fx-font-size: 16px;");
         filtroTextField = new TextField();
-        // Aumentar tamaño de fuente del campo de texto de filtrado
         filtroTextField.setStyle("-fx-font-size: 16px;");
-        Label filtroLabelPrecio = new Label("Filtrar por Precio:");
+        filtroTextField.setMaxWidth(180);
+
+        Label filtroLabelPrecio = new Label("Precio:");
         filtroLabelPrecio.setStyle("-fx-font-size: 16px;");
         filtroTextFieldPrecio = new TextField();
-        // Aumentar tamaño de fuente del campo de texto de filtrado
+        filtroTextFieldPrecio.setMaxWidth(180);
         filtroTextFieldPrecio.setStyle("-fx-font-size: 16px;");
-        Label filtroLabelCantidad = new Label("Filtrar por Cantidad:");
-        filtroLabelCantidad.setStyle("-fx-font-size: 16px;");
 
+        Label filtroLabelCantidad = new Label("Cantidad:");
+        filtroLabelCantidad.setStyle("-fx-font-size: 16px;");
         filtroTextFieldCantidad = new TextField();
-        // Aumentar tamaño de fuente del campo de texto de filtrado
+        filtroTextFieldCantidad.setMaxWidth(180);
         filtroTextFieldCantidad.setStyle("-fx-font-size: 16px;");
 
-        filtroTextFieldCodigodeBarra = new TextField();
-        filtroTextFieldCodigodeBarra.setStyle("-fx-font-size: 16px;");
-        Label filtroLabelBarra = new Label("Filtrar por Código de Barra:");
+        Label filtroLabelBarra = new Label("Cód.Barra:");
         filtroLabelBarra.setStyle("-fx-font-size: 16px;");
+        filtroTextFieldCodigodeBarra = new TextField();
+        filtroTextFieldCodigodeBarra.setMaxWidth(180);
+        filtroTextFieldCodigodeBarra.setStyle("-fx-font-size: 16px;");
 
         // Configurar la tabla
         configureTable();
-        // Agregar todos los elementos al VBox
-        vbox.getChildren().addAll(filtroLabel, filtroTextField, filtroLabelPrecio, filtroTextFieldPrecio, filtroLabelCantidad, filtroTextFieldCantidad, filtroLabelBarra, filtroTextFieldCodigodeBarra, tableView);
+
+        // Agregar elementos al GridPane
+        // Agregar elementos al GridPane
+        gridPane.add(filtroLabel, 0, 0);
+        gridPane.add(filtroTextField, 1, 0);
+
+        Label labelPrecioProveedorSuma = new Label("Proveedor");
+        labelPrecioProveedorSuma.setStyle("-fx-font-size: 16px;");
+        gridPane.add(labelPrecioProveedorSuma, 2, 0);
+        // Crear un Insets personalizado solo para el Label de Precio Proveedor Suma
+        Insets margenPersonalizado = new Insets(0, 0, 0, -400); // Solo ajusta el margen izquierdo
+        // Aplicar el margen personalizado solo al Label de Precio Proveedor Suma
+        GridPane.setMargin(labelPrecioProveedorSuma, margenPersonalizado);
+        Button miBoton = new Button("");
+        miBoton.setStyle("-fx-font-size: 16px;");
+         // Crear ImageView para la imagen del botón
+        ImageView imagenBoton = new ImageView(new Image(getClass().getResourceAsStream("/masmenos.png")));
+        imagenBoton.setFitWidth(30); // ajusta el ancho de la imagen según sea necesario
+        imagenBoton.setFitHeight(30); // ajusta el alto de la imagen según sea necesario
+        miBoton.setGraphic(imagenBoton); // agrega la imagen al botón
+        // Agregar el botón al GridPane
+        gridPane.add(miBoton, 3, 0);
+        // Aplicar un margen personalizado al botón para reducir el espacio
+        Insets margenPersonalizado2 = new Insets(0, 0, 0, -325); // Ajusta el margen izquierdo del botón
+        GridPane.setMargin(miBoton, margenPersonalizado2);
+        miBoton.setOnAction(event -> {
+            // Crear un cuadro de diálogo de entrada para que el usuario escriba el porcentaje
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Agregar/Restar Porcentaje");
+            dialog.setHeaderText("Ingrese el porcentaje a sumar/restar al precio proveedor:");
+            dialog.setContentText("Porcentaje:");
+
+            // Mostrar el cuadro de diálogo y esperar a que el usuario ingrese el porcentaje
+            Optional<String> result = dialog.showAndWait();
+
+            // Procesar la entrada del usuario si está presente
+            result.ifPresent(porcentaje -> {
+                try {
+                    // Convertir la entrada del usuario a un valor numérico
+                    double porcentajeDouble = Double.parseDouble(porcentaje);
+
+                    // Iterar sobre la lista de productos y ajustar el precio proveedor
+                    for (Producto producto : productosList) {
+                        // Obtener el precio proveedor actual del producto
+                        double precioProveedorActual = producto.getPrecioProveedor();
+
+                        // Calcular el nuevo precio proveedor sumando o restando el porcentaje
+                        double nuevoPrecioProveedor = precioProveedorActual * (1 + porcentajeDouble / 100);
+
+                        // Actualizar el precio proveedor del producto
+                        producto.setPrecioProveedor(nuevoPrecioProveedor);
+                    }
+
+                    // Actualizar la tabla para reflejar los cambios
+                    tableView.refresh();
+                } catch (NumberFormatException e) {
+                    // Manejar el caso en el que el usuario ingrese un valor no numérico
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Entrada no válida");
+                    alert.setContentText("Por favor, ingrese un valor numérico válido para el porcentaje.");
+                    alert.showAndWait();
+                }
+                // Llamar al método para guardar los cambios en la base de datos
+                guardarCambiosEnBaseDeDatos();
+            });
+        });
+
+        Label labelPrecioSuma = new Label("Precio");
+        labelPrecioSuma.setStyle("-fx-font-size: 16px;");
+        gridPane.add(labelPrecioSuma, 2, 1);
+        // Crear un Insets personalizado solo para el Label de Precio Proveedor Suma
+        Insets margenPersonalizadoprecio = new Insets(0, 0, 0, -400); // Solo ajusta el margen izquierdo
+        // Aplicar el margen personalizado solo al Label de Precio Proveedor Suma
+        GridPane.setMargin(labelPrecioSuma, margenPersonalizadoprecio);
+        Button miBotonprecio = new Button("");
+        miBotonprecio.setStyle("-fx-font-size: 16px;");
+        // Crear ImageView para la imagen del botón
+        ImageView imagenBoton2 = new ImageView(new Image(getClass().getResourceAsStream("/masmenos.png")));
+        imagenBoton2.setFitWidth(30); // ajusta el ancho de la imagen según sea necesario
+        imagenBoton2.setFitHeight(30); // ajusta el alto de la imagen según sea necesario
+        miBotonprecio.setGraphic(imagenBoton2); // agrega la imagen al botón
+        // Agregar el botón al GridPane
+        gridPane.add(miBotonprecio, 3, 1);
+        // Aplicar un margen personalizado al botón para reducir el espacio
+        Insets margenPersonalizado3 = new Insets(0, 0, 0, -325); // Ajusta el margen izquierdo del botón
+        GridPane.setMargin( miBotonprecio, margenPersonalizado3);
+        miBotonprecio.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Agregar/Restar Porcentaje");
+            dialog.setHeaderText("Ingrese el porcentaje a sumar/restar al precio lista:");
+            dialog.setContentText("Porcentaje:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            result.ifPresent(porcentaje -> {
+                try {
+                    double porcentajeDouble = Double.parseDouble(porcentaje);
+
+                    for (Producto producto : productosList) {
+                        double precioActual = producto.getPrecio();
+                        double nuevoPrecio = precioActual * (1 + porcentajeDouble / 100);
+                        producto.setPrecio(nuevoPrecio); // Actualiza el precio, no el precio proveedor
+                    }
+
+                    tableView.refresh();
+                    guardarCambiosEnBaseDeDatosPrecio(); // Guarda los cambios en la base de datos
+                } catch (NumberFormatException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Entrada no válida");
+                    alert.setContentText("Por favor, ingrese un valor numérico válido para el porcentaje.");
+                    alert.showAndWait();
+                }
+            });
+        });
+
+        Label labelPreciofamilia = new Label("Filtro Prov.");
+        labelPreciofamilia.setStyle("-fx-font-size: 16px;");
+        gridPane.add(labelPreciofamilia, 2, 2);
+        // Crear un Insets personalizado solo para el Label de Precio Proveedor Suma
+        Insets margenPersonalizadopreciofamilia = new Insets(0, 0, 0, -400); // Solo ajusta el margen izquierdo
+        // Aplicar el margen personalizado solo al Label de Precio Proveedor Suma
+        GridPane.setMargin(labelPreciofamilia,margenPersonalizadopreciofamilia);
+        Button miBotonpreciofamilia = new Button("");
+        miBotonpreciofamilia.setStyle("-fx-font-size: 16px;");
+        // Crear ImageView para la imagen del botón
+        ImageView imagenBotonfamilia = new ImageView(new Image(getClass().getResourceAsStream("/masmenos.png")));
+        imagenBotonfamilia.setFitWidth(30); // ajusta el ancho de la imagen según sea necesario
+        imagenBotonfamilia.setFitHeight(30); // ajusta el alto de la imagen según sea necesario
+        miBotonpreciofamilia.setGraphic(imagenBotonfamilia); // agrega la imagen al botón
+        // Agregar el botón al GridPane
+        gridPane.add(miBotonpreciofamilia, 3, 2);
+        // Aplicar un margen personalizado al botón para reducir el espacio
+        Insets margenPersonalizado4 = new Insets(0, 0, 0, -325); // Ajusta el margen izquierdo del botón
+        GridPane.setMargin( miBotonpreciofamilia, margenPersonalizado4);
+        miBotonpreciofamilia.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Agregar/Restar Porcentaje");
+            dialog.setHeaderText("Ingrese el porcentaje a sumar/restar al precio proveedor de los productos filtrados en la tabla:");
+            dialog.setContentText("Porcentaje:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            result.ifPresent(porcentaje -> {
+                try {
+                    double porcentajeDouble = Double.parseDouble(porcentaje);
+
+                    for (Producto producto : tableView.getItems()) { // Itera sobre los productos filtrados
+                        double precioProveedorActual = producto.getPrecioProveedor();
+                        double nuevoPrecioProveedor = precioProveedorActual * (1 + porcentajeDouble / 100);
+                        producto.setPrecioProveedor(nuevoPrecioProveedor);
+                    }
+
+                    tableView.refresh();
+                    guardarCambiosEnBaseDeDatosPrecioFamilia(); // Guarda los cambios en la base de datos
+                } catch (NumberFormatException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Entrada no válida");
+                    alert.setContentText("Por favor, ingrese un valor numérico válido para el porcentaje.");
+                    alert.showAndWait();
+                }
+            });
+        });
+
+        Label labelPreciofamiliaPrec = new Label("Filtro Prec.");
+        labelPreciofamiliaPrec.setStyle("-fx-font-size: 16px;");
+        gridPane.add(labelPreciofamiliaPrec, 2, 3);
+        // Crear un Insets personalizado solo para el Label de Precio Proveedor Suma
+        Insets margenPersonalizadopreciofamiliaprec = new Insets(0, 0, 0, -400); // Solo ajusta el margen izquierdo
+        // Aplicar el margen personalizado solo al Label de Precio Proveedor Suma
+        GridPane.setMargin(labelPreciofamiliaPrec,margenPersonalizadopreciofamiliaprec);
+        Button miBotonpreciofamiliaprec = new Button("");
+        miBotonpreciofamiliaprec.setStyle("-fx-font-size: 16px;");
+        // Crear ImageView para la imagen del botón
+        ImageView imagenBotonfamiliaprec = new ImageView(new Image(getClass().getResourceAsStream("/masmenos.png")));
+        imagenBotonfamiliaprec.setFitWidth(30); // ajusta el ancho de la imagen según sea necesario
+        imagenBotonfamiliaprec.setFitHeight(30); // ajusta el alto de la imagen según sea necesario
+        miBotonpreciofamiliaprec.setGraphic(imagenBotonfamiliaprec); // agrega la imagen al botón
+        // Agregar el botón al GridPane
+        gridPane.add(miBotonpreciofamiliaprec, 3, 3);
+        // Aplicar un margen personalizado al botón para reducir el espacio
+        Insets margenPersonalizado5 = new Insets(0, 0, 0, -325); // Ajusta el margen izquierdo del botón
+        GridPane.setMargin( miBotonpreciofamiliaprec, margenPersonalizado5);
+        miBotonpreciofamiliaprec.setOnAction(event -> {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Agregar/Restar Precio");
+            dialog.setHeaderText("Ingrese el porcentaje a sumar/restar al precio de los productos filtrados en la tabla:");
+            dialog.setContentText("Porcentaje:");
+
+            Optional<String> result = dialog.showAndWait();
+
+            result.ifPresent(porcentaje -> {
+                try {
+                    double porcentajeDouble = Double.parseDouble(porcentaje);
+
+                    // Convertir el porcentaje a una fracción decimal
+                    double porcentajeDecimal = porcentajeDouble / 100;
+
+                    for (Producto producto : tableView.getItems()) { // Itera sobre los productos filtrados
+                        double precioActual = producto.getPrecio();
+                        double nuevoPrecio = precioActual * (1 + porcentajeDecimal);
+                        producto.setPrecio(nuevoPrecio);
+                    }
+
+                    tableView.refresh();
+                    guardarCambiosEnBaseDeDatosPrecioFamiliaPrec(); // Guarda los cambios en la base de datos
+                } catch (NumberFormatException e) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Error");
+                    alert.setHeaderText("Entrada no válida");
+                    alert.setContentText("Por favor, ingrese un valor numérico válido para el porcentaje.");
+                    alert.showAndWait();
+                }
+            });
+        });
+
+
+        gridPane.add(filtroLabelPrecio, 0, 1);
+        gridPane.add(filtroTextFieldPrecio, 1, 1);
+
+        gridPane.add(filtroLabelCantidad, 0, 2);
+        gridPane.add(filtroTextFieldCantidad, 1, 2);
+
+        gridPane.add(filtroLabelBarra, 0, 3);
+        gridPane.add(filtroTextFieldCodigodeBarra, 1, 3);
+
+        gridPane.add(tableView, 1, 4);
+        Insets margenTabla = new Insets(0, 0, 0, -85); // Ajusta el margen izquierdo de la tabla
+        GridPane.setMargin(tableView, margenTabla);
+        // Desactivar el crecimiento automático de las columnas
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Establecer un ancho explícito para la tabla
+        tableView.setPrefWidth(1000); // ajusta el ancho según sea necesario
+
+        // Desactivar el crecimiento automático de las columnas
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        // Agregar la tabla al GridPane
+
+
+
+
+
         // Crear la escena y establecerla en la ventana
-        Scene scene = new Scene(vbox);
+        Scene scene = new Scene(gridPane);
         setScene(scene);
+
         // Configurar el filtrado
         configureFiltering();
     }
+
+
 
     // Método para configurar la tabla
     private void configureTable() {
@@ -296,6 +554,89 @@ public class ListaProductos extends Stage {
             alert.setContentText("Ocurrió un error al intentar actualizar el producto.");
             alert.showAndWait();
             e.printStackTrace();
+        }
+    }
+
+    // Método para guardar los cambios en la base de datos del precio proveedor
+    private void guardarCambiosEnBaseDeDatos() {
+        try {
+            String consultaActualizarPreciosProveedor = "UPDATE productos SET precioproveedor = ? WHERE id = ?";
+            try (PreparedStatement statementActualizarPreciosProveedor = conexion.prepareStatement(consultaActualizarPreciosProveedor)) {
+                // Iterar sobre la lista de productos y actualizar los precios proveedores en la base de datos
+                for (Producto producto : productosList) {
+                    statementActualizarPreciosProveedor.setDouble(1, producto.getPrecioProveedor());
+                    statementActualizarPreciosProveedor.setInt(2, producto.getId());
+                    statementActualizarPreciosProveedor.executeUpdate();
+                }
+                System.out.println("Precios proveedores actualizados en la base de datos.");
+            }
+        } catch (SQLException e) {
+            // Manejar la excepción de forma adecuada
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error al actualizar los precios proveedores");
+            alert.setHeaderText("Ocurrió un error al intentar actualizar los precios proveedores en la base de datos.");
+            alert.showAndWait();
+        }
+    }
+
+    private void guardarCambiosEnBaseDeDatosPrecio() {
+        try {
+            String consultaActualizarPrecios = "UPDATE productos SET precio = ? WHERE id = ?";
+            try (PreparedStatement statementActualizarPrecios = conexion.prepareStatement(consultaActualizarPrecios)) {
+                for (Producto producto : productosList) {
+                    statementActualizarPrecios.setDouble(1, producto.getPrecio());
+                    statementActualizarPrecios.setInt(2, producto.getId());
+                    statementActualizarPrecios.executeUpdate();
+                }
+                System.out.println("Precios actualizados en la base de datos.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error al actualizar los precios ");
+            alert.setHeaderText("Ocurrió un error al intentar actualizar los precios en la base de datos.");
+            alert.showAndWait();
+        }
+    }
+
+    private void guardarCambiosEnBaseDeDatosPrecioFamilia() {
+        try {
+            String consultaActualizarPreciosProveedor = "UPDATE productos SET precioproveedor = ? WHERE nombre LIKE ?"; // Solo actualiza los precios proveedores de los productos filtrados
+            try (PreparedStatement statementActualizarPreciosProveedor = conexion.prepareStatement(consultaActualizarPreciosProveedor)) {
+                for (Producto producto : tableView.getItems()) {
+                    statementActualizarPreciosProveedor.setDouble(1, producto.getPrecioProveedor());
+                    statementActualizarPreciosProveedor.setString(2, "%" + filtroTextField.getText() + "%"); // Utiliza el filtro de nombre para actualizar solo los productos filtrados
+                    statementActualizarPreciosProveedor.executeUpdate();
+                }
+                System.out.println("Precios proveedores actualizados en la base de datos para los productos filtrados.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error al actualizar los precios proveedores");
+            alert.setHeaderText("Ocurrió un error al intentar actualizar los precios proveedores en la base de datos.");
+            alert.showAndWait();
+        }
+    }
+
+    private void guardarCambiosEnBaseDeDatosPrecioFamiliaPrec() {
+        try {
+            String consultaActualizarPrecios = "UPDATE productos SET precio = ? WHERE nombre LIKE ?"; // Solo actualiza los precios de los productos filtrados
+            try (PreparedStatement statementActualizarPrecios = conexion.prepareStatement(consultaActualizarPrecios)) {
+                for (Producto producto : tableView.getItems()) {
+                    statementActualizarPrecios.setDouble(1, producto.getPrecio());
+                    statementActualizarPrecios.setString(2, "%" + filtroTextField.getText() + "%"); // Utiliza el filtro de nombre para actualizar solo los productos filtrados
+                    statementActualizarPrecios.executeUpdate();
+                }
+                System.out.println("Precios actualizados en la base de datos para los productos filtrados.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error al actualizar los precios");
+            alert.setHeaderText("Ocurrió un error al intentar actualizar los precios en la base de datos.");
+            alert.showAndWait();
         }
     }
 

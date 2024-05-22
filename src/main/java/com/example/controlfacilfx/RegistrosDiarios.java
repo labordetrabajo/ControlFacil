@@ -41,9 +41,6 @@ public class RegistrosDiarios extends Application {
         // Configurar el diseño de la interfaz de usuario
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
-
-
-
         // Mensaje de instrucción
         Label labelInstruccion = new Label("Por favor, ingrese la fecha del registro que desea ver:");
         labelInstruccion.setStyle("-fx-font-size: 18px;");
