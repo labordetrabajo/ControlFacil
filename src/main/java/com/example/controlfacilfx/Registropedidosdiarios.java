@@ -15,38 +15,33 @@ import java.sql.*;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 
-public class RegistrosDiarios extends Application {
+public class Registropedidosdiarios extends Application {
     private TextField textFieldDia;
     private TextField textFieldMes;
     private TextField textFieldAño;
-    private TableView<RegistroVenta> tableView;
+    private TableView<Pedido> tableView;
 
-    private Label totalValueLabel; // Declarar totalValueLabel como variable de instancia
+    private Label totalValueLabel;
 
-    // Métodos para la conexión a la base de datos
     private Connection conectarBaseDatos() throws SQLException {
-        // Establecer conexión a la base de datos
         return DriverManager.getConnection("jdbc:mysql://localhost:3308/control_facil", "root", "");
     }
 
-    private ResultSet obtenerRegistrosVentaPorFecha(LocalDate fecha) throws SQLException {
+    private ResultSet obtenerRegistrosPedidoPorFecha(LocalDate fecha) throws SQLException {
         Connection conn = conectarBaseDatos();
-        PreparedStatement statement = conn.prepareStatement("SELECT * FROM registrodeventas WHERE fecha = ?");
+        PreparedStatement statement = conn.prepareStatement("SELECT * FROM registropedidos WHERE fecha = ?");
         statement.setDate(1, Date.valueOf(fecha));
         return statement.executeQuery();
     }
 
     @Override
     public void start(Stage primaryStage) {
-        // Configurar el diseño de la interfaz de usuario
         VBox root = new VBox(20);
         root.setPadding(new Insets(20));
-        // Mensaje de instrucción
-        Label labelInstruccion = new Label("Por favor, ingrese la fecha del registro que desea ver:");
+        Label labelInstruccion = new Label("Por favor, ingrese la fecha de creación de los pedidos que desea ver:");
         labelInstruccion.setStyle("-fx-font-size: 18px;");
         root.getChildren().add(labelInstruccion);
 
-        // Crear controles para ingresar día, mes y año
         GridPane dateGrid = new GridPane();
         dateGrid.setHgap(10);
         dateGrid.setVgap(10);
@@ -75,153 +70,182 @@ public class RegistrosDiarios extends Application {
         textFieldAño.setStyle("-fx-font-size: 16px;");
         textFieldAño.setPromptText("AAAA");
 
-        // Agregar controles al diseño
         dateGrid.addRow(0, labelDia, textFieldDia, labelMes, textFieldMes, labelAño, textFieldAño);
         root.getChildren().add(dateGrid);
 
-        // Crear un botón para obtener la fecha ingresada
         Button button = new Button("Ver Registro");
         button.setStyle("-fx-font-size: 18px;");
         button.setOnAction(e -> mostrarRegistrosPorFecha());
 
-        // Agregar el botón al diseño
         root.getChildren().add(button);
 
-        // TableView para mostrar los registros de venta
         tableView = new TableView<>();
-        tableView.setPrefHeight(500); // Ajuste de altura
+        tableView.setPrefHeight(500);
         configurarTabla();
         root.getChildren().add(tableView);
 
-        // Crear la escena y mostrarla
         Scene scene = new Scene(root, 1200, 700);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Registros de Ventas Diarios");
+        primaryStage.setTitle("Registros de Pedidos Diarios");
         primaryStage.show();
 
-        // Crear un Label para mostrar la suma total
         Label totalLabel = new Label("TOTAL: $");
         totalLabel.setStyle("-fx-font-size: 30px; -fx-text-fill: green;");
-        totalValueLabel = new Label(""); // Inicializar totalValueLabel
+        totalValueLabel = new Label("");
         totalValueLabel.setStyle("-fx-font-size: 30px;");
         HBox totalBox = new HBox(10, totalLabel, totalValueLabel);
         totalBox.setPadding(new Insets(10));
 
-        root.getChildren().add(totalBox); // Agregar el HBox al diseño
+        root.getChildren().add(totalBox);
     }
 
-    // Método para configurar la tabla
     private void configurarTabla() {
-        TableColumn<RegistroVenta, Integer> idColumn = new TableColumn<>("ID");
+        TableColumn<Pedido, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
         idColumn.setPrefWidth(50);
         idColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, Date> fechaColumn = new TableColumn<>("Fecha");
+        TableColumn<Pedido, String> fechaColumn = new TableColumn<>("Fecha");
         fechaColumn.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         fechaColumn.setPrefWidth(150);
         fechaColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, Time> horaColumn = new TableColumn<>("Hora");
+        TableColumn<Pedido, String> horaColumn = new TableColumn<>("Hora");
         horaColumn.setCellValueFactory(new PropertyValueFactory<>("hora"));
         horaColumn.setPrefWidth(100);
         horaColumn.setStyle("-fx-font-size: 16px;");
 
-
-        TableColumn<RegistroVenta, String> clienteColumn = new TableColumn<>("Cliente");
+        TableColumn<Pedido, String> clienteColumn = new TableColumn<>("Cliente");
         clienteColumn.setCellValueFactory(new PropertyValueFactory<>("cliente"));
         clienteColumn.setPrefWidth(200);
         clienteColumn.setStyle("-fx-font-size: 16px;");
 
-        // Personalizar cómo se muestra el contenido de la columna del cliente
         clienteColumn.setCellFactory(column -> {
-            return new TableCell<RegistroVenta, String>() {
+            return new TableCell<Pedido, String>() {
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
                     if (item == null || empty) {
                         setText(null);
                     } else {
-                        // Dividir el texto en id, nombre y apellido
                         String[] parts = item.split("Nombre:");
                         if (parts.length > 1) {
                             String idPart = parts[0];
                             String[] nameParts = parts[1].split("Apellido:");
                             String nombre = nameParts[0];
                             String apellido = nameParts[1];
-                            // Formatear la presentación
                             setText(idPart.trim() + "  " + nombre.trim() + " " + apellido.trim());
                         } else {
-                            setText(item); // Si no hay coincidencias, mostrar el texto original
+                            setText(item);
                         }
                     }
                 }
             };
         });
 
-
-        TableColumn<RegistroVenta, String> productosColumn = new TableColumn<>("Productos");
+        TableColumn<Pedido, String> productosColumn = new TableColumn<>("Productos");
         productosColumn.setCellValueFactory(new PropertyValueFactory<>("productos"));
         productosColumn.setPrefWidth(300);
         productosColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, Double> totalColumn = new TableColumn<>("Total");
+        TableColumn<Pedido, Double> totalColumn = new TableColumn<>("Total");
         totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         totalColumn.setPrefWidth(100);
         totalColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, String> metodoPagoColumn = new TableColumn<>("Método de Pago");
-        metodoPagoColumn.setCellValueFactory(new PropertyValueFactory<>("metodoDePago")); // Aquí es donde necesitas cambiar
+        TableColumn<Pedido, String> metodoPagoColumn = new TableColumn<>("Método de Pago");
+        metodoPagoColumn.setCellValueFactory(new PropertyValueFactory<>("metodoDePago"));
         metodoPagoColumn.setPrefWidth(150);
         metodoPagoColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, Double> porcentajeColumn = new TableColumn<>("Porcentaje");
+        TableColumn<Pedido, Double> porcentajeColumn = new TableColumn<>("Porcentaje");
         porcentajeColumn.setCellValueFactory(new PropertyValueFactory<>("porcentaje"));
         porcentajeColumn.setPrefWidth(100);
         porcentajeColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<RegistroVenta, Double> precioFinalColumn = new TableColumn<>("Precio Final");
+        TableColumn<Pedido, Double> precioFinalColumn = new TableColumn<>("Precio Final");
         precioFinalColumn.setCellValueFactory(new PropertyValueFactory<>("precioFinal"));
         precioFinalColumn.setPrefWidth(120);
         precioFinalColumn.setStyle("-fx-font-size: 16px;");
 
+        TableColumn<Pedido, String> estadoColumn = new TableColumn<>("Estado");
+        estadoColumn.setCellValueFactory(new PropertyValueFactory<>("estado"));
+        estadoColumn.setPrefWidth(100);
+        estadoColumn.setStyle("-fx-font-size: 16px;");
+
+        TableColumn<Pedido, String> horarioEntregaColumn = new TableColumn<>("Horario Entrega");
+        horarioEntregaColumn.setCellValueFactory(new PropertyValueFactory<>("horarioEntrega"));
+        horarioEntregaColumn.setPrefWidth(150);
+        horarioEntregaColumn.setStyle("-fx-font-size: 16px;");
+
+        TableColumn<Pedido, String> fechaEntregaColumn = new TableColumn<>("Fecha Entrega");
+        fechaEntregaColumn.setCellValueFactory(new PropertyValueFactory<>("fechaEntrega"));
+        fechaEntregaColumn.setPrefWidth(150);
+        fechaEntregaColumn.setStyle("-fx-font-size: 16px;");
+
+        TableColumn<Pedido, String> hipervinculoColumn = new TableColumn<>("Hipervínculo");
+        hipervinculoColumn.setCellValueFactory(new PropertyValueFactory<>("hipervinculo"));
+        hipervinculoColumn.setPrefWidth(200);
+        hipervinculoColumn.setStyle("-fx-font-size: 16px;");
+
+        TableColumn<Pedido, String> vehiculoColumn = new TableColumn<>("Vehículo");
+        vehiculoColumn.setCellValueFactory(new PropertyValueFactory<>("vehiculo"));
+        vehiculoColumn.setPrefWidth(150);
+        vehiculoColumn.setStyle("-fx-font-size: 16px;");
+
+        TableColumn<Pedido, String> direccionEntregaColumn = new TableColumn<>("Dirección Entrega");
+        direccionEntregaColumn.setCellValueFactory(new PropertyValueFactory<>("direccionEntrega"));
+        direccionEntregaColumn.setPrefWidth(200);
+        direccionEntregaColumn.setStyle("-fx-font-size: 16px;");
+
         tableView.getColumns().addAll(idColumn, fechaColumn, horaColumn, clienteColumn, productosColumn,
-                totalColumn, metodoPagoColumn, porcentajeColumn, precioFinalColumn);
-
-
+                totalColumn, metodoPagoColumn, porcentajeColumn, precioFinalColumn, estadoColumn, horarioEntregaColumn,
+                fechaEntregaColumn, hipervinculoColumn, vehiculoColumn, direccionEntregaColumn);
     }
 
-    // Método para calcular la suma total del precio final
-    private double calcularSumaTotal(ObservableList<RegistroVenta> registros) {
+    private double calcularSumaTotal(ObservableList<Pedido> registros) {
         double sumaTotal = 0;
-        for (RegistroVenta registro : registros) {
-            sumaTotal += registro.getPrecioFinal();
+        for (Pedido pedido : registros) {
+            sumaTotal += pedido.getPrecioFinal();
         }
         return sumaTotal;
     }
 
-
-    // Método para mostrar los registros de ventas por la fecha ingresada
-    // Método para mostrar los registros de ventas por la fecha ingresada
     private void mostrarRegistrosPorFecha() {
+        String dia = textFieldDia.getText();
+        String mes = textFieldMes.getText();
+        String año = textFieldAño.getText();
+
+        if (dia.isEmpty() || mes.isEmpty() || año.isEmpty()) {
+            System.out.println("Error: Todos los campos de fecha son requeridos");
+            return;
+        }
+
         try {
-            int dia = Integer.parseInt(textFieldDia.getText());
-            int mes = Integer.parseInt(textFieldMes.getText());
-            int año = Integer.parseInt(textFieldAño.getText());
-            LocalDate fechaIngresada = LocalDate.of(año, mes, dia);
-            ResultSet resultSet = obtenerRegistrosVentaPorFecha(fechaIngresada);
-            ObservableList<RegistroVenta> registros = FXCollections.observableArrayList();
+            int diaInt = Integer.parseInt(dia);
+            int mesInt = Integer.parseInt(mes);
+            int añoInt = Integer.parseInt(año);
+            LocalDate fecha = LocalDate.of(añoInt, mesInt, diaInt);
+
+            ResultSet resultSet = obtenerRegistrosPedidoPorFecha(fecha);
+            ObservableList<Pedido> registros = FXCollections.observableArrayList();
             while (resultSet.next()) {
-                registros.add(new RegistroVenta(
+                registros.add(new Pedido(
                         resultSet.getInt("id"),
-                        resultSet.getDate("fecha"),
-                        resultSet.getTime("hora"),
+                        resultSet.getString("fecha"),
+                        resultSet.getString("hora"),
                         resultSet.getString("cliente"),
                         resultSet.getString("productos"),
                         resultSet.getDouble("total"),
-                        resultSet.getString("metododepago"),
+                        resultSet.getString("metodoDePago"),
                         resultSet.getDouble("porcentaje"),
-                        resultSet.getDouble("precio_final")
+                        resultSet.getDouble("precio_final"),
+                        resultSet.getString("estado"),
+                        resultSet.getString("horario_entrega"),
+                        resultSet.getString("fecha_entrega"),
+                        resultSet.getString("hipervinculo"),
+                        resultSet.getString("vehiculo"),
+                        resultSet.getString("direccion_entrega")
                 ));
             }
             tableView.setItems(registros);
@@ -238,8 +262,6 @@ public class RegistrosDiarios extends Application {
             System.out.println("Error al obtener registros de la base de datos: " + ex.getMessage());
         }
     }
-
-
 
     public static void main(String[] args) {
         launch(args);

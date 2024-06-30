@@ -39,6 +39,18 @@ public class Pedidos extends Application {
     private ChoiceBox<String> metodoPagoChoiceBox;
     private ArrayList<Producto> productosEliminados;
 
+    private TextField horarioTextField;
+
+    private TextField fechaEntregaTextField;
+
+    private TextField direccionTextField;
+
+    private TextField  vehiculoTextField;
+
+    private  TextField hiperTextField;
+
+    private ChoiceBox<String> estadoChoiceBox;
+
     // Declarar etiquetas para mostrar los detalles del cliente
     private Label idClienteLabel;
     private Label direccionClienteLabel;
@@ -157,35 +169,37 @@ public class Pedidos extends Application {
 
 
       // Crear label y text field para la fecha de entrega
-        Label fechaEntregaLabel = new Label("F.Entrega");
-        TextField fechaEntregaTextField = new TextField();
-        fechaEntregaTextField.setPromptText("DD/MM/AÑO");
+        Label fechaEntregaLabel = new Label("Fecha Entrega");
+        fechaEntregaTextField = new TextField();
+        fechaEntregaTextField.setPromptText("Dia/Mes/Año");
         fechaEntregaTextField.setMaxWidth(140); // Establecer un ancho específico
         fechaEntregaTextField.setAlignment(Pos.CENTER_LEFT); // Alinear el texto a la izquierda
 
        // Crear label y choice box para el estado
         Label estadoLabel = new Label("Estado:");
-        ChoiceBox<String> estadoChoiceBox = new ChoiceBox<>();
-      // estadoChoiceBox.getItems().addAll("Activo", "Inactivo"); // Añadir opciones al ChoiceBox
+        estadoChoiceBox= new ChoiceBox<>();
+        // Obtener los estados de la base de datos y cargarlos en el ChoiceBox
+        obtenerEstadosDeBaseDeDatos();
+        estadoChoiceBox.getItems().addAll("Activo", "Inactivo"); // Añadir opciones al ChoiceBox
 
       // Crear label y text field para la hora de entrega
         Label horarioLabel = new Label("H.Entrega:");
-        TextField horarioTextField = new TextField();
-        horarioTextField.setPromptText("HH:MM");
+        horarioTextField = new TextField();
+        horarioTextField.setPromptText("23:00");
         horarioTextField.setMaxWidth(90); // Establecer un ancho específico
 
         Label direccionLabel = new Label("Dirección:");
-        TextField direccionTextField = new TextField();
+        direccionTextField = new TextField();
         direccionTextField.setPromptText("Pola 1254");
         direccionTextField.setMaxWidth(140); // Establecer un ancho específico
 
-        Label hiperLabel = new Label("Hiper.Entrega:");
-        TextField hiperTextField = new TextField();
+        Label hiperLabel = new Label("Hiperinculo:");
+        hiperTextField = new TextField();
         hiperTextField.setPromptText("www.hola.com");
         hiperTextField.setMaxWidth(140); // Establecer un ancho específico
 
         Label vehiculoLabel = new Label("Vehículo:");
-        TextField vehiculoTextField = new TextField();
+        vehiculoTextField = new TextField();
         vehiculoTextField.setPromptText("Corsa npu456");
         vehiculoTextField.setMaxWidth(140); // Establecer un ancho específico
 
@@ -199,6 +213,10 @@ public class Pedidos extends Application {
                 new HBox(new Label("Link \nproducto:   "), hiperTextField),
                 new HBox(new Label("Vehículo:    "), vehiculoTextField)
         );
+
+
+
+
 
 // Agregar el VBox al GridPane en una posición más baja
         gridPane.add(vbox, 4, 1, 2, 3); // Cambiar la fila de 0 a 3 (o el número adecuado)
@@ -499,8 +517,9 @@ public class Pedidos extends Application {
                             resultSet.getDouble("cantidad"),
                             resultSet.getDouble("precio"),
                             resultSet.getDouble("precioproveedor"),
-                            resultSet.getString("codigodebarra"),
-                            resultSet.getString("unidad")
+                            resultSet.getString("unidad"),
+                            resultSet.getString("codigodebarra")
+
                     );
                     listaProductos.add(producto);
                 }
@@ -548,8 +567,9 @@ public class Pedidos extends Application {
                                 cantidadDouble,
                                 productoSeleccionado.getPrecio(),
                                 productoSeleccionado.getPrecioProveedor(),
-                                productoSeleccionado.getCodigoBarras(),
-                                productoSeleccionado.getUnidad() // Asegúrate de obtener la unidad del producto seleccionado
+                                productoSeleccionado.getUnidad(), // Asegúrate de obtener la unidad del producto seleccionado
+                                productoSeleccionado.getCodigoBarras()
+
                         ));
                         mostrarCarrito();
                         tablaCarrito.setItems(FXCollections.observableArrayList(productosAgregados));
@@ -659,6 +679,18 @@ public class Pedidos extends Application {
        // Obtener los detalles del cliente seleccionado
        String detallesCliente = idClienteLabel.getText();
 
+       String estado =  estadoChoiceBox.getValue();
+
+       String horarioentrega =horarioTextField.getText();
+
+       String fechaentrega =  fechaEntregaTextField.getText();
+
+       String hipervinculo = hiperTextField.getText();
+
+       String vehiculo=  vehiculoTextField.getText();
+
+        String direccionentrega = direccionTextField.getText();
+
        // Obtener el porcentaje y el total
        double porcentaje = obtenerPorcentaje();
        double totalVenta = obtenerPrecioFinal();
@@ -666,11 +698,11 @@ public class Pedidos extends Application {
        // Generar el comprobante independientemente de la respuesta del usuario
        if (porcentaje >= 0) {
            // Aplicar incremento al total
-           Comprobante.generarComprobantePDF(productosAgregados, total, metodoPagoSeleccionado, "comprobante", porcentaje, totalVenta, detallesCliente);
+           Comprobantepedido.generarComprobantePDF(productosAgregados, total, metodoPagoSeleccionado, "comprobante pedido", porcentaje, totalVenta, detallesCliente,estado,horarioentrega,fechaentrega,hipervinculo,vehiculo,direccionentrega);
        } else {
            // Convertir el porcentaje a negativo y aplicar descuento al total
            double porcentajeNegativo = -Math.abs(porcentaje); // Se utiliza Math.abs para asegurar que sea negativo
-           Comprobante.generarComprobantePDF(productosAgregados, total, metodoPagoSeleccionado, "comprobante", porcentajeNegativo, totalVenta, detallesCliente);
+           Comprobantepedido.generarComprobantePDF(productosAgregados, total, metodoPagoSeleccionado, "comprobante pedido", porcentajeNegativo, totalVenta, detallesCliente,estado,horarioentrega,fechaentrega,hipervinculo,vehiculo,direccionentrega);
        }
 
        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
@@ -685,7 +717,7 @@ public class Pedidos extends Application {
            // Se puede agregar aquí una lógica adicional si es necesario
            // Obtener el nombre del archivo generado
            SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HHmm");
-           String nombreArchivo = "C:/ControlFacil/comprobantes/comprobante_" + sdf.format(new Date()) + ".pdf";
+           String nombreArchivo = "C:/ControlFacil/comprobantespedido/comprobante_" + sdf.format(new Date()) + ".pdf";
 
 
            // Imprimir el comprobante
@@ -737,8 +769,15 @@ public class Pedidos extends Application {
         documentoClienteLabel.setText("");
         porcentajeLabel.setText("");
         finalLabel.setText("");
+        fechaEntregaTextField.setText("");
+        estadoChoiceBox.getSelectionModel().clearSelection();
+        horarioTextField.setText("");
+        direccionTextField.setText("");
+        hiperTextField.setText("");
+        vehiculoTextField.setText("");
         // Restaurar la selección predeterminada del método de pago
         metodoPagoChoiceBox.getSelectionModel().clearSelection();
+
 
         // Limpiar cualquier otro componente o información en la pantalla que necesites
     }
@@ -771,6 +810,20 @@ public class Pedidos extends Application {
         }
 
         return precioFinal;
+    }
+
+    private void obtenerEstadosDeBaseDeDatos() {
+      try {
+            String consulta = "SELECT estado FROM estados";
+            try (PreparedStatement statement = conexion.prepareStatement(consulta)) {
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    estadoChoiceBox.getItems().add(resultSet.getString("estado"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -879,6 +932,8 @@ public class Pedidos extends Application {
         // Establecer la cadena de detalles en el Label
         idClienteLabel.setText(detallesCliente);
     }
+
+
 
     @Override
     public void stop() throws Exception {

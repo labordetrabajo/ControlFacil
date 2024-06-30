@@ -14,10 +14,10 @@ import javafx.stage.Stage;
 import java.sql.*;
 import java.time.LocalDate;
 
-public class RegistrosMensuales extends Application {
+public class RegistrosPedidosMensuales extends Application {
     private TextField textFieldMes;
     private TextField textFieldAño;
-    private TableView<VentaDiaria> tableView;
+    private TableView<Pedido> tableView;
     private Label totalLabel;
 
     @Override
@@ -27,7 +27,7 @@ public class RegistrosMensuales extends Application {
         root.setPadding(new Insets(20));
 
         // Mensaje de instrucción
-        Label labelInstruccion = new Label("Por favor, escriba el mes y el año:");
+        Label labelInstruccion = new Label("Por favor, indique el mes y el año de creación de los pedidos:");
         labelInstruccion.setStyle("-fx-font-size: 18px;");
         root.getChildren().add(labelInstruccion);
 
@@ -60,32 +60,32 @@ public class RegistrosMensuales extends Application {
         button.setOnAction(e -> mostrarRegistrosDelMes());
         root.getChildren().add(button);
 
-        // TableView para mostrar los registros de ventas diarios
+        // TableView para mostrar los registros de pedidos diarios
         tableView = new TableView<>();
         tableView.setPrefHeight(500); // Ajuste de altura
         configurarTabla();
         root.getChildren().add(tableView);
 
-        // Label para mostrar la suma total de ventas del mes
-        totalLabel = new Label("TOTAL: $");
+        // Label para mostrar la suma total de pedidos del mes
+        totalLabel = new Label("TOTAL: ");
         totalLabel.setStyle("-fx-font-size: 24px; -fx-text-fill: green;");
         root.getChildren().add(totalLabel);
 
         // Crear la escena y mostrarla
         Scene scene = new Scene(root, 700, 700);
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Registros de Ventas Mensuales");
+        primaryStage.setTitle("Registros de Pedidos Mensuales");
         primaryStage.show();
     }
 
     // Método para configurar la tabla
     private void configurarTabla() {
-        TableColumn<VentaDiaria, Date> fechaColumn = new TableColumn<>("Fecha");
+        TableColumn<Pedido, String> fechaColumn = new TableColumn<>("Fecha");
         fechaColumn.setCellValueFactory(new PropertyValueFactory<>("fecha"));
         fechaColumn.setPrefWidth(200);
         fechaColumn.setStyle("-fx-font-size: 16px;");
 
-        TableColumn<VentaDiaria, Double> totalColumn = new TableColumn<>("Total del Día");
+        TableColumn<Pedido, Double> totalColumn = new TableColumn<>("Total del Pedido");
         totalColumn.setCellValueFactory(new PropertyValueFactory<>("total"));
         totalColumn.setPrefWidth(200);
         totalColumn.setStyle("-fx-font-size: 16px;");
@@ -93,7 +93,7 @@ public class RegistrosMensuales extends Application {
         tableView.getColumns().addAll(fechaColumn, totalColumn);
     }
 
-    // Método para mostrar los registros de ventas del mes seleccionado
+    // Método para mostrar los registros de pedidos del mes seleccionado
     private void mostrarRegistrosDelMes() {
         try {
             int mes = Integer.parseInt(textFieldMes.getText());
@@ -102,18 +102,18 @@ public class RegistrosMensuales extends Application {
             LocalDate fechaFin = fechaInicio.plusMonths(1).minusDays(1);
 
             Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3308/control_facil", "root", "");
-            PreparedStatement statement = conn.prepareStatement("SELECT fecha, SUM(precio_final) AS total FROM registrodeventas WHERE fecha BETWEEN ? AND ? GROUP BY fecha");
+            PreparedStatement statement = conn.prepareStatement("SELECT fecha, SUM(precio_final) AS total FROM registropedidos WHERE fecha BETWEEN ? AND ? GROUP BY fecha");
             statement.setDate(1, Date.valueOf(fechaInicio));
             statement.setDate(2, Date.valueOf(fechaFin));
 
             ResultSet resultSet = statement.executeQuery();
-            ObservableList<VentaDiaria> ventasDiarias = FXCollections.observableArrayList();
+            ObservableList<Pedido> pedidosMensuales = FXCollections.observableArrayList();
             double sumaTotal = 0;
             while (resultSet.next()) {
-                ventasDiarias.add(new VentaDiaria(resultSet.getDate("fecha"), resultSet.getDouble("total")));
+                pedidosMensuales.add(new Pedido(0, resultSet.getString("fecha"), "", "", "", resultSet.getDouble("total"), "", 0, 0, "", "", "", "", "", ""));
                 sumaTotal += resultSet.getDouble("total");
             }
-            tableView.setItems(ventasDiarias);
+            tableView.setItems(pedidosMensuales);
             totalLabel.setText("TOTAL: $" + sumaTotal);
 
             conn.close();

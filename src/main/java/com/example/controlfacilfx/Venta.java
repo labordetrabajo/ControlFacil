@@ -441,8 +441,9 @@ public class Venta extends Application {
                             resultSet.getDouble("cantidad"),
                             resultSet.getDouble("precio"),
                             resultSet.getDouble("precioproveedor"),
-                            resultSet.getString("codigodebarra"),
-                            resultSet.getString("unidad")
+                            resultSet.getString("unidad"),
+                            resultSet.getString("codigodebarra")
+
                     );
                     listaProductos.add(producto);
                 }
@@ -490,8 +491,9 @@ public class Venta extends Application {
                                 cantidadDouble,
                                 productoSeleccionado.getPrecio(),
                                 productoSeleccionado.getPrecioProveedor(),
-                                productoSeleccionado.getCodigoBarras(),
-                                productoSeleccionado.getUnidad() // Asegúrate de obtener la unidad del producto seleccionado
+                                productoSeleccionado.getUnidad(), // Asegúrate de obtener la unidad del producto seleccionado
+                                productoSeleccionado.getCodigoBarras()
+
                         ));
                         mostrarCarrito();
                         tablaCarrito.setItems(FXCollections.observableArrayList(productosAgregados));

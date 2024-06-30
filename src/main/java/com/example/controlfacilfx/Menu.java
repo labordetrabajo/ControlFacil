@@ -137,15 +137,15 @@ public class Menu extends Application {
 
         Button pedidoButton = new Button(" Pedidos ");
         pedidoButton.setStyle("-fx-font-size: 20px;");
-         // Crear ImageView para el icono del botón de pedido
+
+// Crear ImageView para el icono del botón de pedido
         ImageView pedidoIcon = new ImageView(new Image(getClass().getResourceAsStream("/pedido.png")));
         pedidoIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
         pedidoIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
         pedidoButton.setGraphic(pedidoIcon); // agrega el icono al botón
-        pedidoButton.setOnAction(e -> {
-            Pedidos pedidos = new Pedidos(conexion);
-            pedidos.start(new Stage()); // Inicia la ventana de venta
-        });
+
+        pedidoButton.setOnAction(e -> stage.setScene(menuPedidos(stage)));
+
 
 
         Button ventaButton = new Button("  Ventas  ");
@@ -181,18 +181,30 @@ public class Menu extends Application {
         clientesIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
         menuClientesButton.setGraphic(clientesIcon); // agrega el icono al botón
 
-        Button menuRegistroventasButton = new Button("R.Ventas");
+        Button menuRegistroventasButton = new Button("R.Ventas ");
         menuRegistroventasButton.setStyle("-fx-font-size: 20px;");
         menuRegistroventasButton.setOnAction(e -> stage.setScene(menuRegistrosVentas(stage)));
-
-      // Crear ImageView para el icono del botón de registro de ventas
+        // Crear ImageView para el icono del botón de registro de ventas
         ImageView registroVentasIcon = new ImageView(new Image(getClass().getResourceAsStream("/registroventas.png")));
         registroVentasIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
         registroVentasIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
         menuRegistroventasButton.setGraphic(registroVentasIcon); // agrega el icono al botón
 
+        Button menuImportarExcelButton = new Button("Importar\nProductos");
+        menuImportarExcelButton.setStyle("-fx-font-size: 16px;");
+        menuImportarExcelButton.setOnAction(e -> abrirVentanaImportarExcel());
+        ImageView registroImportarExcelIcon = new ImageView(new Image(getClass().getResourceAsStream("/Excel.png")));
+        registroImportarExcelIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registroImportarExcelIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        menuImportarExcelButton.setGraphic(registroImportarExcelIcon); // agrega el icono al botón
 
-
+        Button menuRegistropedidosButton = new Button("R.Pedidos");
+        menuRegistropedidosButton.setStyle("-fx-font-size: 20px;");
+        menuRegistropedidosButton.setOnAction(e -> stage.setScene(menuRegistrosPedidos(stage)));
+        ImageView registroPedidosIcon = new ImageView(new Image(getClass().getResourceAsStream("/registropedido.png")));
+        registroPedidosIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registroPedidosIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        menuRegistropedidosButton.setGraphic(registroPedidosIcon); // agrega el icono al botón
 
         Button salirButton = new Button("  Salir  ");
         salirButton.setStyle("-fx-font-size: 20px;");
@@ -217,7 +229,8 @@ public class Menu extends Application {
         menuPane.add( menuRegistroventasButton, 1, 3);
         menuPane.add( contactoButton, 2, 3);
         menuPane.add(pedidoButton, 2, 4);
-
+        menuPane.add(menuRegistropedidosButton, 1,4);
+        menuPane.add(menuImportarExcelButton, 0,4);
         return menuPane;
     }
 
@@ -230,7 +243,11 @@ public class Menu extends Application {
 
         // Agregar elementos a la interfaz gráfica
         Label registrosVentasLabel = new Label(" Registros de Ventas ");
-        registrosVentasLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: black;");
+        ImageView registrosVentasLabelimg = new ImageView(new Image(getClass().getResourceAsStream("/registroventas.png")));
+        registrosVentasLabelimg.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registrosVentasLabelimg.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        registrosVentasLabel.setGraphic(registrosVentasLabelimg); // agrega el icono al botón
+        registrosVentasLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #F0F0F0;");
         menuRegistrosVentasPane.add(registrosVentasLabel, 0, 0, 2, 1);
 
         // Botón para registros diarios
@@ -298,6 +315,91 @@ public class Menu extends Application {
         Scene menuRegistrosVentas = new Scene(menuRegistrosVentasPane, 900, 700); // Ajusta el ancho y alto según tus necesidades
 
         return menuRegistrosVentas;
+    }
+
+    public Scene menuRegistrosPedidos(Stage stage) {
+        // Crear un nuevo GridPane para el menú de registros de ventas
+        GridPane menuRegistrosVentasPane = new GridPane();
+        menuRegistrosVentasPane.setAlignment(Pos.CENTER);
+        menuRegistrosVentasPane.setHgap(10);
+        menuRegistrosVentasPane.setVgap(10);
+
+        // Agregar elementos a la interfaz gráfica
+        Label registrosVentasLabel = new Label(" Registros de Pedidos ");
+        ImageView registrosVentasLabelimg = new ImageView(new Image(getClass().getResourceAsStream("/registropedido.png")));
+        registrosVentasLabelimg.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registrosVentasLabelimg.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        registrosVentasLabel.setGraphic(registrosVentasLabelimg); // agrega el icono al botón
+        registrosVentasLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #F0F0F0;");
+        menuRegistrosVentasPane.add(registrosVentasLabel, 0, 0, 2, 1);
+
+        // Botón para registros diarios
+        Button registrosDiariosButton = new Button("Registros Diarios");
+        registrosDiariosButton.setOnAction(e -> {
+            Registropedidosdiarios registrosDiarios = new Registropedidosdiarios();
+            registrosDiarios.start(new Stage());
+        });
+
+        registrosDiariosButton.setStyle("-fx-font-size: 20px;");
+
+        // Crear ImageView para el icono del botón de registros diarios
+        ImageView registrosDiariosIcon = new ImageView(new Image(getClass().getResourceAsStream("/ventasdiarias.png")));
+        registrosDiariosIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registrosDiariosIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        registrosDiariosButton.setGraphic(registrosDiariosIcon); // agrega el icono al botón
+
+        menuRegistrosVentasPane.add(registrosDiariosButton, 0, 1);
+
+
+        // Botón para registros mensuales
+        Button registrosMensualesButton = new Button("Registros Mensuales");
+        registrosMensualesButton.setOnAction(e -> {
+            RegistrosPedidosMensuales registrosPedidosMensuales = new RegistrosPedidosMensuales();
+            registrosPedidosMensuales.start(new Stage());
+        });
+
+        registrosMensualesButton.setStyle("-fx-font-size: 20px;");
+
+        // Crear ImageView para el icono del botón de registros mensuales
+        ImageView registrosMensualesIcon = new ImageView(new Image(getClass().getResourceAsStream("/ventasmensuales.png")));
+        registrosMensualesIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        registrosMensualesIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        registrosMensualesButton.setGraphic(registrosMensualesIcon); // agrega el icono al botón
+
+        menuRegistrosVentasPane.add(registrosMensualesButton, 1, 1);
+
+
+        // Botón para volver al Menú Principal
+        Button volverButton = new Button("  Menu Principal ");
+        volverButton.setOnAction(e -> stage.setScene(originalScene)); // Asignar la escena original al Stage
+        volverButton.setStyle("-fx-font-size: 20px;");
+
+        // Crear ImageView para el icono del botón de volver al menú principal
+        ImageView volverIcon = new ImageView(new Image(getClass().getResourceAsStream("/menuprincipal.png")));
+        volverIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        volverIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        volverButton.setGraphic(volverIcon); // agrega el icono al botón
+
+        menuRegistrosVentasPane.add(volverButton, 0, 2, 2, 1);
+
+        // Cargar la imagen para el fondo
+        Image backgroundImage = new Image("linea8.jpg");
+
+        // Crear un objeto BackgroundImage con la imagen cargada
+        BackgroundImage backgroundImg = new BackgroundImage(backgroundImage,
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true));
+
+        // Crear un objeto Background con el BackgroundImage
+        Background background = new Background(backgroundImg);
+
+        // Establecer el fondo del GridPane
+        menuRegistrosVentasPane.setBackground(background);
+
+        // Crear una escena más grande
+        Scene menuRegistrosPedidos = new Scene(menuRegistrosVentasPane, 900, 700); // Ajusta el ancho y alto según tus necesidades
+
+        return menuRegistrosPedidos;
     }
 
     //*************************************** MENU PRODUCTOS *********************************************************//
@@ -391,7 +493,6 @@ public class Menu extends Application {
         return menuProductos;
     }
 
-
     // Método para agregar un producto//
     private void agregarProducto(Stage stage) {
         // Crear un nuevo Stage para la interfaz gráfica
@@ -437,7 +538,7 @@ public class Menu extends Application {
         agregarproductoPane.add(unidadLabel, 0, 4);
         agregarproductoPane.add(unidadTextField, 1, 4);
 
-        Label precioLabel = new Label("Precio:");
+        Label precioLabel = new Label("Precio Venta:");
         precioLabel.setStyle("-fx-font-size: 18pt;");
         TextField precioTextField = new TextField();
         precioTextField.setStyle("-fx-font-size: 18pt;");
@@ -531,8 +632,6 @@ public class Menu extends Application {
         agregarproductoStage.show();
     }
 
-
-
     //Con esto invoco a la clase ListaProductos//
     private void mostrarListaProductos() {
         ListaProductos listaProductos = new ListaProductos(conexion);
@@ -615,7 +714,11 @@ public class Menu extends Application {
 
         // Agregar elementos a la interfaz gráfica
         Label menuMetodosPagoLabel = new Label("Métodos de Pago");
-        menuMetodosPagoLabel.setStyle("-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: black;"); // Aumenta el tamaño de la fuente
+        ImageView menuMetodosPagoLabelimg = new ImageView(new Image(getClass().getResourceAsStream("/metododepago.png")));
+        menuMetodosPagoLabelimg.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        menuMetodosPagoLabelimg.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        menuMetodosPagoLabel.setGraphic(menuMetodosPagoLabelimg); // agrega el icono al botón
+        menuMetodosPagoLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #F0F0F0;"); // Aumenta el tamaño de la fuente
         menuMetodosPagoPane.add(menuMetodosPagoLabel, 0, 0, 2, 1);
 
         // Botón para agregar método de pago
@@ -697,8 +800,6 @@ public class Menu extends Application {
 
         return menuMetodosPago;
     }
-
-
 
     // Método para agregar un nuevo método de pago//
     private void agregarMetodoPago(Stage stage) {
@@ -847,7 +948,11 @@ public class Menu extends Application {
 
         // Etiqueta para el título
         Label menuClientesLabel = new Label("Clientes");
-        menuClientesLabel.setStyle("-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: black;");
+        ImageView menuClientesLabelimg = new ImageView(new Image(getClass().getResourceAsStream("/clientes.png")));
+        menuClientesLabelimg.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        menuClientesLabelimg.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        menuClientesLabel.setGraphic(menuClientesLabelimg); // agrega el icono al botón
+        menuClientesLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #F0F0F0;");
         menuClientesPane.add(menuClientesLabel, 0, 0, 2, 1);
 
         // Botón para agregar cliente
@@ -1066,5 +1171,116 @@ public class Menu extends Application {
 
         stage.showAndWait();
     }
+
+    //****************************************** MENU PEDIDOS ******************************************************//
+    public Scene menuPedidos(Stage stage) {
+        // Crear un nuevo GridPane para el menú de pedidos
+        GridPane menuPedidosPane = new GridPane();
+        menuPedidosPane.setAlignment(Pos.CENTER);
+        menuPedidosPane.setHgap(10);
+        menuPedidosPane.setVgap(10);
+
+        // Agregar elementos a la interfaz gráfica
+        Label pedidosLabel = new Label(" Administración de Pedidos ");
+        pedidosLabel.setStyle("-fx-font-size: 30px; -fx-font-weight: bold; -fx-text-fill: #F0F0F0;");
+        ImageView pedidosLabelimg = new ImageView(new Image(getClass().getResourceAsStream("/pedido.png")));
+        pedidosLabelimg.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        pedidosLabelimg.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        pedidosLabel.setGraphic(pedidosLabelimg); // agrega el icono al botón
+        menuPedidosPane.add(pedidosLabel, 0, 0, 2, 1);
+
+        // Botón para agregar pedido
+        Button agregarPedidoButton = new Button("  Nuevo Pedido   ");
+        //agregarPedidoButton.setOnAction(e -> agregarPedido(stage));
+        agregarPedidoButton.setStyle("-fx-font-size: 20px;");
+        agregarPedidoButton.setOnAction(e -> {
+            Pedidos pedidos = new Pedidos(conexion);
+            pedidos.start(new Stage()); // Inicia la ventana de venta
+        });
+
+        // Crear ImageView para el icono del botón de agregar pedido
+        ImageView agregarPedidoIcon = new ImageView(new Image(getClass().getResourceAsStream("/agregarpedido.png")));
+        agregarPedidoIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        agregarPedidoIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        agregarPedidoButton.setGraphic(agregarPedidoIcon); // agrega el icono al botón
+
+        menuPedidosPane.add(agregarPedidoButton, 0, 1);
+
+        // Repite el proceso para los demás botones...
+
+        // Botón para ver lista de pedidos
+        Button listaPedidosButton = new Button("Lista de Pedidos");
+        // listaPedidosButton.setOnAction(e -> mostrarListaPedidos());
+        listaPedidosButton.setStyle("-fx-font-size: 20px;");
+        listaPedidosButton.setOnAction(e -> {
+            // Crear una instancia de ListaMetodosPago
+            ListaPedidos ListaPedidos = new ListaPedidos(conexion);
+            // Mostrar la ventana
+            ListaPedidos.mostrarVentana();
+        });
+
+
+        // Crear ImageView para el icono del botón de lista de pedidos
+        ImageView listaPedidosIcon = new ImageView(new Image(getClass().getResourceAsStream("/lista.png")));
+        listaPedidosIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        listaPedidosIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        listaPedidosButton.setGraphic(listaPedidosIcon); // agrega el icono al botón
+
+        menuPedidosPane.add(listaPedidosButton, 1, 1);
+
+        // Botón para exportar a Excel
+       // Button exportarAExcelButton = new Button("  Exportar a Excel ");
+        //exportarAExcelButton.setOnAction(e -> exportarAExcel());
+        //exportarAExcelButton.setStyle("-fx-font-size: 20px;");
+
+        // Crear ImageView para el icono del botón de exportar a Excel
+        ImageView exportarAExcelIcon = new ImageView(new Image(getClass().getResourceAsStream("/exportarexcel.png")));
+        exportarAExcelIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        exportarAExcelIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        //exportarAExcelButton.setGraphic(exportarAExcelIcon); // agrega el icono al botón
+
+       // menuPedidosPane.add(exportarAExcelButton, 0, 2);
+
+        // Botón para volver al Menú Principal
+        Button volverButton = new Button("Menu Principal  ");
+        volverButton.setOnAction(e -> stage.setScene(originalScene)); // Asignar la escena original al Stage
+        volverButton.setStyle("-fx-font-size: 20px;");
+
+        // Crear ImageView para el icono del botón de volver al menú principal
+        ImageView volverIcon = new ImageView(new Image(getClass().getResourceAsStream("/menuprincipal.png")));
+        volverIcon.setFitWidth(40); // ajusta el ancho del icono según sea necesario
+        volverIcon.setFitHeight(40); // ajusta el alto del icono según sea necesario
+        volverButton.setGraphic(volverIcon); // agrega el icono al botón
+
+        menuPedidosPane.add(volverButton, 1, 2);
+
+        // Cargar la imagen para el fondo
+        Image backgroundImage = new Image("linea8.jpg");
+
+        // Crear un objeto BackgroundImage con la imagen cargada
+        BackgroundImage backgroundImg = new BackgroundImage(backgroundImage,
+                BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.DEFAULT, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, true, true, true, true));
+
+        // Crear un objeto Background con el BackgroundImage
+        Background background = new Background(backgroundImg);
+
+        // Establecer el fondo del GridPane
+        menuPedidosPane.setBackground(background);
+
+        // Crear una escena más grande
+        Scene menuPedidos = new Scene(menuPedidosPane, 900, 700); // Ajusta el ancho y alto según tus necesidades
+
+        return menuPedidos;
+    }
+
+    private void abrirVentanaImportarExcel() {
+        try {
+            new ImportarDeExcelApp().start(new Stage());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
 }

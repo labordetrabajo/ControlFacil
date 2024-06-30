@@ -162,7 +162,7 @@ public class ListaProductos extends Stage {
             });
         });
 
-        Label labelPrecioSuma = new Label("Precio");
+        Label labelPrecioSuma = new Label("Precio Vent.");
         labelPrecioSuma.setStyle("-fx-font-size: 16px;");
         gridPane.add(labelPrecioSuma, 2, 1);
         // Crear un Insets personalizado solo para el Label de Precio Proveedor Suma
@@ -348,8 +348,6 @@ public class ListaProductos extends Stage {
         configureFiltering();
     }
 
-
-
     // Método para configurar la tabla
     private void configureTable() {
         tableView = new TableView<>();
@@ -360,7 +358,7 @@ public class ListaProductos extends Stage {
         TableColumn<Producto, Double> cantidadColumn = new TableColumn<>("Cantidad");
         TableColumn<Producto, String> unidadColumn = new TableColumn<>("Unidad");
         TableColumn<Producto, Double> precioProveedorColumn = new TableColumn<>("Precio Proveedor"); // Nueva columna para precioProveedor
-        TableColumn<Producto, Double> precioColumn = new TableColumn<>("Precio");
+        TableColumn<Producto, Double> precioColumn = new TableColumn<>("Precio Venta");
         TableColumn<Producto, String> codigoBarrasColumn = new TableColumn<>("Codigo de Barra");
         TableColumn<Producto, Void> eliminarColumn = new TableColumn<>("Eliminar");
         TableColumn<Producto, Void> editarColumn = new TableColumn<>("Editar");

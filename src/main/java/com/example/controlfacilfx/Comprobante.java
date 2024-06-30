@@ -75,129 +75,111 @@ public class Comprobante {
         }
     }
 
+    private static final int MAX_PRODUCTOS_POR_PAGINA = 20; // Máximo de productos por página
     private static void generarComprobantePDF(Date fechaActual, ArrayList<Producto> productos,
                                               double total,
                                               String metodoPago,
                                               double porcentaje,
                                               double totalVenta,
                                               String detallesCliente) {
-        // Generar nombre de archivo único basado en la fecha y hora actual con guiones bajos
+
         SimpleDateFormat sdf = new SimpleDateFormat("dd_MM_yyyy_HHmm");
-        String nombreArchivo = "C:/ControlFacil/comprobantes/comprobante_" + sdf.format(fechaActual);
+        String nombreArchivo = "C:/ControlFacil/comprobantes/comprobante_" + sdf.format(fechaActual) + ".pdf";
 
         try (PDDocument document = new PDDocument()) {
             PDPage page = new PDPage();
             document.addPage(page);
 
-            try (PDPageContentStream contentStream = new PDPageContentStream(document, page)) {
-                // Usar la fuente Helvetica
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
+            PDPageContentStream contentStream = new PDPageContentStream(document, page);
 
-                // Establecer posición inicial del texto
-                float x = 50;
-                float y = 700; // Ajustar la posición vertical
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
+            contentStream.beginText();
+            contentStream.newLineAtOffset(50, 750);
+            contentStream.showText("Comprobante de Venta");
+            contentStream.newLineAtOffset(0, -20);
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            contentStream.showText("Fecha y Hora: " + new SimpleDateFormat("dd/MM/yyyy HH:mm").format(fechaActual));
+            contentStream.newLineAtOffset(0, -20);
+            contentStream.showText("******************************************");
 
-                contentStream.beginText();
-                contentStream.newLineAtOffset(x, y);
+            contentStream.newLineAtOffset(0, -40);
 
-                SimpleDateFormat formatoFecha = new SimpleDateFormat("dd/MM/yyyy HH:mm");
-                String fechaHoraActual = formatoFecha.format(fechaActual);
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+            contentStream.showText("Detalles del Cliente:");
+            contentStream.newLineAtOffset(0, -20);
 
-                // Encabezado estilizado
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 18);
-                contentStream.setLeading(20);
-                contentStream.showText("Comprobante de Venta");
-                contentStream.newLine();
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
-                contentStream.showText("Fecha y Hora: " + fechaHoraActual);
-                contentStream.newLine();
-                contentStream.showText("******************************************");
-
-                // Incremento en la posición Y para separar líneas
-                y -= 40;
-
-                // Mostrar detalles del cliente
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
-                contentStream.newLine();
-                contentStream.showText("Detalles del Cliente:");
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-
-                // Dividir el texto de los detalles del cliente en líneas
-                String[] lineasDetalles = detallesCliente.split("\\n");
-
-                // Mostrar cada línea de detalles del cliente en una nueva línea
-                for (String linea : lineasDetalles) {
-                    // Omitir el ID del cliente si está presente
-                    if (linea.toLowerCase().startsWith("id")) {
-                        continue; // Saltar la línea que comienza con "ID"
-                    }
-
-                    // Capitalizar la primera letra de cada palabra en la línea
-                    String[] palabras = linea.split("\\s+");
-                    StringBuilder lineaFormateada = new StringBuilder();
-                    for (String palabra : palabras) {
-                        if (!palabra.isEmpty()) { // Saltar palabras vacías
-                            lineaFormateada.append(Character.toUpperCase(palabra.charAt(0)))
-                                    .append(palabra.substring(1).toLowerCase())
-                                    .append(" ");
-                        }
-                    }
-                    // Mostrar la línea formateada
-                    contentStream.showText(lineaFormateada.toString().trim());
-                    contentStream.newLineAtOffset(0, -20); // Salto de línea
-
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            String[] lineasDetalles = detallesCliente.split("\\n");
+            for (String linea : lineasDetalles) {
+                if (linea.toLowerCase().startsWith("id")) {
+                    continue;
                 }
-                contentStream.newLine();
-                contentStream.showText("******************************************");
-
-                // Mostrar detalles del cliente
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
-                contentStream.newLine();
-                contentStream.showText("Productos:");
-                contentStream.setFont(PDType1Font.HELVETICA, 12); // Restaurar la fuente normal
-                contentStream.newLineAtOffset(0, -10); // Salto de línea
-
-                for (Producto producto : productos) {
-                    contentStream.newLineAtOffset(0, -20); // Salto de línea
-                    contentStream.showText(producto.getNombre() + " x " + producto.getCantidad() + " " + producto.getUnidad() + ": $" + (producto.getPrecio() * producto.getCantidad()));
-                }
-
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.showText("******************************************");
-
-                contentStream.newLineAtOffset(0, -10); // Salto de línea
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
-                contentStream.newLine();
-                contentStream.showText("Total:");
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
-
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.showText("Suma Total: $" + total);
-
-                // Mostrar el método de pago
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.showText("Método de Pago: " + metodoPago);
-
-                contentStream.newLineAtOffset(0, -20); // Salto de línea
-                contentStream.showText("Porcentaje: " + porcentaje + "%");
-
-                contentStream.newLineAtOffset(0, -10); // Salto de línea
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                contentStream.newLine();
-                contentStream.showText("Total final: $" + totalVenta);
-                contentStream.setFont(PDType1Font.HELVETICA, 12);
-                contentStream.newLineAtOffset(0, -10); // Salto de línea
-                contentStream.newLine();
-                contentStream.showText("======Gracias por su compra=====");
-
-                contentStream.endText();
+                contentStream.showText(linea.trim());
+                contentStream.newLineAtOffset(0, -20);
             }
 
-            // Guardar el documento con el nombre de archivo generado
-            document.save(nombreArchivo + ".pdf");
+            contentStream.newLineAtOffset(0, -20);
+            contentStream.showText("******************************************");
+
+            contentStream.newLineAtOffset(0, -40);
+
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+            contentStream.showText("Productos:");
+            contentStream.newLineAtOffset(0, -20);
+
+            int productosPorPagina = 0;
+            for (Producto producto : productos) {
+                contentStream.showText(producto.getNombre() + " x " + producto.getCantidad() + " " + producto.getUnidad() + ": $" + (producto.getPrecio() * producto.getCantidad()));
+                contentStream.newLineAtOffset(0, -20);
+
+                productosPorPagina++;
+
+                if (productosPorPagina >= MAX_PRODUCTOS_POR_PAGINA) {
+                    // Si alcanzamos el límite de productos por página, agregamos una nueva página
+                    contentStream.endText();
+                    contentStream.close();
+
+                    page = new PDPage();
+                    document.addPage(page);
+                    contentStream = new PDPageContentStream(document, page);
+                    contentStream.setFont(PDType1Font.HELVETICA, 12);
+                    contentStream.beginText();
+                    contentStream.newLineAtOffset(50, 750);
+
+                    productosPorPagina = 0; // Reiniciamos el contador de productos por página
+                }
+            }
+
+            contentStream.newLineAtOffset(0, -20);
+            contentStream.showText("******************************************");
+
+            contentStream.newLineAtOffset(0, -40);
+
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14);
+            contentStream.showText("Total:");
+            contentStream.newLineAtOffset(0, -20);
+
+            contentStream.showText("Suma Total: $" + total);
+            contentStream.newLineAtOffset(0, -20);
+
+            contentStream.showText("Método de Pago: " + metodoPago);
+            contentStream.newLineAtOffset(0, -20);
+
+            contentStream.showText("Porcentaje: " + porcentaje * 100 + "%");
+            contentStream.newLineAtOffset(0, -20);
+
+            contentStream.setFont(PDType1Font.HELVETICA_BOLD, 12);
+            contentStream.showText("Total final: $" + totalVenta);
+            contentStream.setFont(PDType1Font.HELVETICA, 12);
+            contentStream.newLineAtOffset(0, -20);
+
+            contentStream.newLineAtOffset(0, -20);
+            contentStream.showText("======Gracias por su compra=====");
+
+            contentStream.endText();
+            contentStream.close();
+
+            document.save(nombreArchivo);
         } catch (IOException e) {
             e.printStackTrace();
         }
