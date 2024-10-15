@@ -15,8 +15,6 @@ Memoria RAM: Mínimo 2 GB
 Espacio en Disco: 500 MB
 Java: Versión 8 o superior
 Instalación
-1. Descargar el software
-Puedes descargar la última versión de Control Fácil desde este enlace.
 
 
 Uso del Software
